@@ -43,8 +43,8 @@ object Interpreter {
         })
       }
       // booleanos: 
-      case CTrue() => pure(0)
-      case CFalse() => pure(1) // todo use not 0
+      case CTrue() => pure(1) // todo use not 0
+      case CFalse() => pure(0) 
       // boolean operators
       case Not(e) => eval(e, declarations).map(b => if (b == 0) 1 else 0)
       case And(lhs, rhs) => for {
