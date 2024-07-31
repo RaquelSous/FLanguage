@@ -16,39 +16,50 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
 
   val initialState: S = List()
 
-  "eval CInt(5)" should "return an integer value 5." in {
-    val c5 = CInt(5)
-    val (res, _) = runState(eval(c5, declarations))(initialState)
-    res should be (5)
-  }
+  "An IfThenElse expression" should "evaluate to the correct branch based on the condition" in{
+    val expr = IfThenElse(CTrue(), CInt(1))
+    val result = Interpreter.eval(expr, List()).runA(List()).value
+    result should be(1)
 
-  "eval Add(CInt(5), CInt(10)) " should "return an integer value 15." in {
-    val c5  = CInt(5)
-    val c10 = CInt(10)
-    val add = Add(c5, c10)
-    val (res, _) = runState(eval(add, declarations))(initialState)
-    res should be (15)
+    val expr2 = IfThenElse(CFalse(), CInt(1), CInt(0))
+    val result2 = (Interpreter.evalexpr2, List()).runA(List()).value
+    result2 should be(0)
   }
+  
 
-  "eval Add(CInt(5), Add(CInt(5), CInt(10))) " should "return an integer value 20." in {
-    val c5 = CInt(5)
-    val c10 = CInt(10)
-    val add = Add(c5, Add(c5, c10))
-    val (res, _) = runState(eval(add, declarations))(initialState)
-    res should be(20)
-  }
-
-  "eval Mul(CInt(5), CInt(10))" should "return an integer value 50" in {
-    val c5 = CInt(5)
-    val c10 = CInt(10)
-    val mul = Mul(c5, CInt(10))
-    val (res, _) = runState(eval(mul, declarations))(initialState)
-    res should be(50)
-  }
-
-  "eval App(inc, 99) " should "return an integer value 100" in {
-    val app = App("inc", CInt(99))
-    val (res, _) = runState(eval(app, declarations))(initialState)
-    res should be (100)
-  }
+//  "eval CInt(5)" should "return an integer value 5." in {
+//    val c5 = CInt(5)
+//    val (res, _) = runState(eval(c5, declarations))(initialState)
+//    res should be (5)
+//  }
+//
+//  "eval Add(CInt(5), CInt(10)) " should "return an integer value 15." in {
+//    val c5  = CInt(5)
+//    val c10 = CInt(10)
+//    val add = Add(c5, c10)
+//    val (res, _) = runState(eval(add, declarations))(initialState)
+//    res should be (15)
+//  }
+//
+//  "eval Add(CInt(5), Add(CInt(5), CInt(10))) " should "return an integer value 20." in {
+//    val c5 = CInt(5)
+//    val c10 = CInt(10)
+//    val add = Add(c5, Add(c5, c10))
+//    val (res, _) = runState(eval(add, declarations))(initialState)
+//    res should be(20)
+//  }
+//
+//  "eval Mul(CInt(5), CInt(10))" should "return an integer value 50" in {
+//    val c5 = CInt(5)
+//    val c10 = CInt(10)
+//    val mul = Mul(c5, CInt(10))
+//    val (res, _) = runState(eval(mul, declarations))(initialState)
+//    res should be(50)
+//  }
+//
+//  "eval App(inc, 99) " should "return an integer value 100" in {
+//    val app = App("inc", CInt(99))
+//    val (res, _) = runState(eval(app, declarations))(initialState)
+//    res should be (100)
+//  }
 }

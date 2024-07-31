@@ -4,6 +4,7 @@ import Declarations._
 import StateMonad._
 
 object Interpreter {
+  type M[A] = State[S, A]
 
   /** This implementation relies on a state monad.
     *
@@ -42,5 +43,25 @@ object Interpreter {
           })
         })
       }
+      // booleanos: 
+      case CTrue() => pure(0)
+      case CFalse() => pure(1) // todo use not 0
+      // boolean operators
+      case Not(e) => eval(e, declarations).map(b => if (b == 0) 1 else 0)
+      case And(lhs, rhs) => for {
+        l <- eval(lhs, declarations)
+        r <- eval(rhs, declarations)
+      } yield if (l ==0 && r == 0) 0 else 1
+      case Or(lhs, rhs) => for {
+        l <- eval(lhs, declarations)
+        r <- eval(rhs, declarations)
+      } yield if (l == 0 || r == 0) 0 else 1
+
+      // condicional
+      case IfThenElse(cond, ifTrue, ifFalse) => 
+        bind(eval(cond, declarations))({ c =>
+          if(c != 0) eval(ifTrue, declarations)
+          else eval(ifFalse, declarations)
+        })
     }
 }
