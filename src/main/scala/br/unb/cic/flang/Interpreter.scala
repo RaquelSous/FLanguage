@@ -4,7 +4,6 @@ import Declarations._
 import StateMonad._
 
 object Interpreter {
-  type M[A] = State[S, A]
 
   /** This implementation relies on a state monad.
     *

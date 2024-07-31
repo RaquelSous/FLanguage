@@ -17,12 +17,12 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
   val initialState: S = List()
 
   "An IfThenElse expression" should "evaluate to the correct branch based on the condition" in{
-    val expr = IfThenElse(CTrue(), CInt(1))
-    val result = Interpreter.eval(expr, List()).runA(List()).value
+    val expr = IfThenElse(CTrue(), CInt(1), CInt(0))
+    val result = Interpreter.eval(expr, List()).f(List())._1
     result should be(1)
 
     val expr2 = IfThenElse(CFalse(), CInt(1), CInt(0))
-    val result2 = (Interpreter.evalexpr2, List()).runA(List()).value
+    val result2 = Interpreter.eval(expr2, List()).f(List())._1
     result2 should be(0)
   }
   
