@@ -16,18 +16,18 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
 
   val initialState: S = List()
 
-//  "An IfThenElse expression" should "evaluate to the correct branch based on the condition" in{
-//    val expr = IfThenElse(CTrue(), CInt(1), CInt(0))
-//    val result = Interpreter.eval(expr, List()).f(List())._1
-//    result should be(1)
-//
-//        val expr2 = IfThenElse(CFalse(), CInt(1), CInt(0))
-//    val result2 = Interpreter.eval(expr2, List()).f(List())._1
-//    result2 should be(0)
-//
-//  }
-//
-    "An IfThenElse expression" should "evaluate to the true branch if the condition is true in" in{
+  "An IfThenElse expression" should "evaluate to the correct branch based on the condition" in{
+    val expr = IfThenElse(CTrue(), CInt(1), CInt(0))
+    val result = Interpreter.eval(expr, List()).f(List())._1
+    result should be(1)
+
+        val expr2 = IfThenElse(CFalse(), CInt(1), CInt(0))
+    val result2 = Interpreter.eval(expr2, List()).f(List())._1
+    result2 should be(0)
+
+  }
+
+  "An IfThenElse expression" should "evaluate to the true branch if the condition is true in" in{
 
     val expr = IfThenElse(CTrue(), CInt(1), CInt(0))
     val result = Interpreter.eval(expr, List()).f(List())._1
@@ -41,6 +41,82 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
     result2 should be(0)
   }
 
+  "eval Ctrue()" should "return an boolean 1" in {
+    val cTrue = CTrue()
+    val (res, _) = runState(eval(cTrue, declarations))(initialState)
+    res should be(1)
+  }
+
+  "eval CFalse()" should "return an boolean 0" in {
+    val cFalse = CFalse()
+    val (res, _) = runState(eval(cFalse, declarations))(initialState)
+    res should be(0)
+  }
+
+  "eval Not(CTrue())" should "return an boolean 0" in {
+    val notTrue = Not(CTrue())
+    val (res, _) = runState(eval(notTrue, declarations))(initialState)
+    res should be(0)
+  }
+
+  "eval Not(CFalse())" should "return an boolean 1" in {
+    val notFalse = Not(CFalse())
+    val (res, _) = runState(eval(notFalse, declarations))(initialState)
+    res should be(1)
+  }
+  "Eval And(CTrue(), CTrue())" should "return an boolean 1" in {
+    val AndTrue = And(CTrue(), CTrue())
+    val (res, _) = runState(eval(AndTrue, declarations))(initialState)
+    res should be(1)
+  }
+  "Eval And(CTrue(), CFalse())" should "return an boolean 0" in {
+    val AndFalse = And(CTrue(), CFalse())
+    val (res, _) = runState(eval(AndFalse, declarations))(initialState)
+    res should be(0)
+  }
+  "Eval And(CFalse(), CFalse())" should "return an boolean 0" in {
+    val AndFalse = And(CFalse(), CFalse())
+    val (res, _) = runState(eval(AndFalse, declarations))(initialState)
+    res should be(0)
+  }
+  "Eval Or(CTrue(), CFalse())" should "return an boolean 1" in {
+    val OrTrue = Or(CTrue(), CFalse())
+    val (res, _) = runState(eval(OrTrue, declarations))(initialState)
+    res should be(1)
+  }
+  "Eval Or(CFalse(), CFalse())" should "return an boolean 0" in {
+    val OrFalse = Or(CFalse(), CFalse())
+    val (res, _) = runState(eval(OrFalse, declarations))(initialState)
+    res should be(0)
+  }
+  "Eval Or(CTrue(), CTrue())" should "return an boolean 1" in {
+    val OrFalse = Or(CTrue(), CTrue())
+    val (res, _) = runState(eval(OrFalse, declarations))(initialState)
+    res should be(1)
+  }
+
+  "Eval CEquals(CInt(1), CInt(2))" should "return an boolean 0" in {
+    val expr = CEquals(CInt(1), CInt(2))
+    val (res, _) = runState(eval(expr, declarations))(initialState)
+    res should be(0)
+  }
+
+  "Eval CEquals(CInt(2), CInt(2))" should "return an boolean 1" in {
+    val expr = CEquals(CInt(2), CInt(2))
+    val (res, _) = runState(eval(expr, declarations))(initialState)
+    res should be(1)
+  }
+
+  "Eval Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(2)))" should "return an boolean 1" in {
+    val expr = Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(2)))
+    val (res, _) = runState(eval(expr, declarations))(initialState)
+    res should be(1)
+  }
+  "Eval Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))" should "return an boolean 1" in {
+    val expr = Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))
+    val (res, _) = runState(eval(expr, declarations))(initialState)
+    res should be(1)
+  }
 //  "eval CInt(5)" should "return an integer value 5." in {
 //    val c5 = CInt(5)
 //    val (res, _) = runState(eval(c5, declarations))(initialState)

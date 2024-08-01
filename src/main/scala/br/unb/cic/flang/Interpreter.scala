@@ -43,18 +43,25 @@ object Interpreter {
         })
       }
       // booleanos: 
-      case CTrue() => pure(1) // todo use not 0
-      case CFalse() => pure(0) 
+      case CTrue() => pure(1) // True is any non 0 value
+      case CFalse() => pure(0)
       // boolean operators
       case Not(e) => eval(e, declarations).map(b => if (b == 0) 1 else 0)
+      
       case And(lhs, rhs) => for {
         l <- eval(lhs, declarations)
         r <- eval(rhs, declarations)
-      } yield if (l ==0 && r == 0) 0 else 1
+      } yield if (l != 0 && r != 0) 1 else 0
+
       case Or(lhs, rhs) => for {
         l <- eval(lhs, declarations)
         r <- eval(rhs, declarations)
-      } yield if (l == 0 || r == 0) 0 else 1
+      } yield if (l != 0 || r != 0) 1 else 0
+
+      case CEquals(lhs, rhs) => for {
+        l <- eval(lhs, declarations)
+        r <- eval(rhs, declarations)
+      } yield if (l == r) 1 else 0
 
       // condicional
       case IfThenElse(cond, ifTrue, ifFalse) => 

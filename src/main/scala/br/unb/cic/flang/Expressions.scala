@@ -16,5 +16,6 @@ case class CFalse() extends Expr
 case class Not(e: Expr) extends Expr
 case class And(lhs: Expr, rhs: Expr) extends Expr
 case class Or(lhs: Expr, rhs: Expr) extends Expr
+case class CEquals(lhs: Expr, rhs: Expr) extends Expr // comparações de igualdade
 
 case class IfThenElse(cond: Expr, ifTrue: Expr, ifFalse: Expr) extends Expr
