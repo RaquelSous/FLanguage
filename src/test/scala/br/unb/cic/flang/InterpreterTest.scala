@@ -112,10 +112,29 @@ class InterpreterTest extends AnyFlatSpec with should.Matchers {
     val (res, _) = runState(eval(expr, declarations))(initialState)
     res should be(1)
   }
-  "Eval Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))" should "return an boolean 1" in {
-    val expr = Or(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))
+
+  "Eval And(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))" should "return an boolean 1" in {
+    val expr = And(CEquals(CInt(1), CInt(1)), CEquals(CInt(1), CInt(1)))
     val (res, _) = runState(eval(expr, declarations))(initialState)
     res should be(1)
+  }
+  
+  "An IfThenElse expression including an And operator" should "evaluate to the true branch if the condition is true in And(CTrue(), CTrue())" in{
+    val expr = IfThenElse(And(CTrue(), CTrue()), CInt(1), CInt(0))
+    val result = Interpreter.eval(expr, List()).f(List())._1
+    result should be(1)
+  }
+
+  "An IfThenElse expression including an Or operator" should "evaluate to the true branch if the condition is true in Or(CTrue(), CTrue())" in{
+    val expr = IfThenElse(Or(CTrue(), CTrue()), CInt(1), CInt(0))
+    val result = Interpreter.eval(expr, List()).f(List())._1
+    result should be(1)
+  }
+
+  "An IfThenElse expression including an CEquals operator" should "evaluate to the true branch if the condition is true in CEquals(CInt(1), CInt(1))" in{
+    val expr = IfThenElse(CEquals(CInt(1),CInt(1)), CInt(1), CInt(0))
+    val result = Interpreter.eval(expr, List()).f(List())._1
+    result should be(1)
   }
 //  "eval CInt(5)" should "return an integer value 5." in {
 //    val c5 = CInt(5)
