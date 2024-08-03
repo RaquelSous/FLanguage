@@ -3,16 +3,7 @@ package br.unb.cic.flang
 package object StateMonad {
   type S = List[(String, Integer)]
 
-  case class M[A](f: S => (A, S)){
-    def map[B](g: A => B): M[B] = M(s => {
-      val (a, newState) = f(s)
-      (g(a), newState)
-    })
-    def flatMap[B](g: A => M[B]): M[B] = M(s => {
-      val (a, newState) = f(s)
-      g(a).f(newState)
-    })
-  }
+  case class M[A](f: S => (A, S))
 
   def pure[A](a: A): M[A] = M[A] { s => (a, s) }
 
