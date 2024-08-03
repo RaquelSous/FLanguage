@@ -1,9 +1,14 @@
 package br.unb.cic.flang
+import cats.data.State
+import cats.implicits._
 
-package object StateMonad {
-  type S = List[(String, Integer)]
+package object StateWithCats {
+  type S = List[(String, StateValue)]
 
-  case class M[A](f: S => (A, S)){
+  // Define a State Monad
+  type StateM[A] = State[S, A]
+
+    case class M[A](f: S => (A, S)){
     def map[B](g: A => B): M[B] = M(s => {
       val (a, newState) = f(s)
       (g(a), newState)
@@ -14,33 +19,28 @@ package object StateMonad {
     })
   }
 
-  def pure[A](a: A): M[A] = M[A] { s => (a, s) }
+  def pure[A](a: A): StateM[A] = State.pure(a)
 
-  def bind[A, B](m: M[A])(f: A => M[B]): M[B] = M({ s: S =>
-    {
-      val (a, s1) = runState(m)(s)
-      val (b, s2) = runState(f(a))(s1)
-      (b, s2)
-    }
-  })
+  def bind[A, B](m: StateM[A])(f: A => StateM[B]): StateM[B] = m.flatMap(f)
 
-  def runState[A](s: M[A]): (S => (A, S)) = s.f
+  def put(s: S): StateM[Unit] = State.set(s)
 
-  def put(s: S): M[Unit] = M({ _: S => ((), s) })
+  def get: StateM[S] = State.get
 
-  def get[A](): M[S] = M({ s: S => (s, s) })
+  def modify(f: S => S): StateM[Unit] = State.modify(f)
 
-  def declareVar(name: String, value: Integer, state: S): S =
-    (name, value) :: state
-
-  def lookupVar(name: String, state: S): Integer = state match {
-    case List()                      => ???
-    case (n, v) :: tail if n == name => v
-    case _ :: tail                   => lookupVar(name, tail)
+  def runState[A](state: StateM[A], initial: S): (A, S) = {
+    state.run(initial).value.swap
   }
 
+  // Declare a variable in the state
+  def declareVar(name: String, value: Integer, state: S): S =
+    (name, IntValue(value)) :: state
 
-
-  
-
+  // Look up a variable's value in the state
+  def lookupVar(name: String, state: S): Integer = state match {
+    case List() => throw new RuntimeException(s"Variable $name not found")
+    case (n, IntValue(v)) :: tail if n == name => v
+    case _ :: tail => lookupVar(name, tail)
+  }
 }
