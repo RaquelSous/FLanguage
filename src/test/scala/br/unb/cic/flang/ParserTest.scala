@@ -3,96 +3,76 @@ package br.unb.cic.flang
 import org.scalatest._
 import flatspec._
 import matchers._
-import FLangParser._
+
 
 class ParserTest extends AnyFlatSpec with should.Matchers {
 
-  "A CInt expression" should "be parsed correctly" in {
-    val input = "123"
-    parse(input) should be(Right(CInt(123)))
+  "An integer expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("42")
+    result.get should be(CInt(42))
+
+    val result2 = FLangParser.parseCode("-15")
+    result2.get should be(CInt(-15))
   }
 
-  "An Add expression" should "be parsed correctly" in {
-    val input = "(+ 1 2)"
-    parse(input) should be(Right(Add(CInt(1), CInt(2))))
+  "An identifier expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("x")
+    result.get should be(Id("x"))
+
+    val result2 = FLangParser.parseCode("_var123")
+    result2.get should be(Id("_var123"))
   }
 
-  "A Sub expression" should "be parsed correctly" in {
-    val input = "(- 5 3)"
-    parse(input) should be(Right(Sub(CInt(5), CInt(3))))
+  "An addition expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("add 1 2")
+    result.get should be(Add(CInt(1), CInt(2)))
   }
 
-  "A Mul expression" should "be parsed correctly" in {
-    val input = "(* 2 3)"
-    parse(input) should be(Right(Mul(CInt(2), CInt(3))))
+  "A multiplication expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("mul 3 4")
+    result.get should be(Mul(CInt(3), CInt(4)))
   }
 
-  "A Div expression" should "be parsed correctly" in {
-    val input = "(/ 6 2)"
-    parse(input) should be(Right(Div(CInt(6), CInt(2))))
+  "A conditional expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("if 1 then 2 else 3")
+    result.get should be(IfThenElse(CInt(1), CInt(2), CInt(3)))
+
+    val result2 = FLangParser.parseCode("if x then y else z")
+    result2.get should be(IfThenElse(Id("x"), Id("y"), Id("z")))
   }
 
-  "An Id expression" should "be parsed correctly" in {
-    val input = "x"
-    parse(input) should be(Right(Id("x")))
+  "A function application expression" should "be parsed correctly" in {
+    val result = FLangParser.parseCode("app inc 5")
+    result.get should be(App("inc", CInt(5)))
   }
 
-  "An App expression" should "be parsed correctly" in {
-    val input = "(* 2 x)"
-    parse(input) should be(Right(App(CInt(2), Id("x"))))
+  "An expression with nested addition" should "be parsed correctly" in {
+    val code = "add 1 add 2 3"
+    val result = FLangParser.parseCode(code)
+    result.get should be(Add(CInt(1), Add(CInt(2), CInt(3))))
   }
 
-  "A Lambda expression" should "be parsed correctly" in {
-    val input = "(lambda x (+ x 1))"
-    parse(input) should be(Right(Lambda("x", Add(Id("x"), CInt(1)))))
+  "An expression with nested multiplication" should "be parsed correctly" in {
+    val code = "mul 2 mul 3 4"
+    val result = FLangParser.parseCode(code)
+    result.get should be(Mul(CInt(2), Mul(CInt(3), CInt(4))))
   }
 
-  "An IfThenElse expression" should "be parsed correctly" in {
-    val input = "(if true 1 0)"
-    parse(input) should be(Right(IfThenElse(CTrue(), CInt(1), CInt(0))))
+  "A complex expression with function application" should "be parsed correctly" in {
+    val code = "app f add 1 2"
+    val result = FLangParser.parseCode(code)
+    result.get should be(App("f", Add(CInt(1), CInt(2))))
   }
 
-  "A WhileLoop expression" should "be parsed correctly" in {
-    val input = "(while true (+ x 1))"
-    parse(input) should be(Right(WhileLoop(CTrue(), Add(Id("x"), CInt(1)))))
-  }
-
-  "A CTrue expression" should "be parsed correctly" in {
-    val input = "true"
-    parse(input) should be(Right(CTrue()))
-  }
-
-  "A CFalse expression" should "be parsed correctly" in {
-    val input = "false"
-    parse(input) should be(Right(CFalse()))
-  }
-
-  "A Not expression" should "be parsed correctly" in {
-    val input = "(not true)"
-    parse(input) should be(Right(Not(CTrue())))
-  }
-
-  "An And expression" should "be parsed correctly" in {
-    val input = "(and true false)"
-    parse(input) should be(Right(And(CTrue(), CFalse())))
-  }
-
-  "An Or expression" should "be parsed correctly" in {
-    val input = "(or true false)"
-    parse(input) should be(Right(Or(CTrue(), CFalse())))
-  }
-
-  "An Equals expression" should "be parsed correctly" in {
-    val input = "(equals 1 2)"
-    parse(input) should be(Right(Equals(CInt(1), CInt(2))))
-  }
-
-  "A complex expression" should "be parsed correctly" in {
-    val input = "(if (and true false) (lambda x (+ x 1)) (not true))"
-    parse(input) should be(Right(IfThenElse(And(CTrue(), CFalse()), Lambda("x", Add(Id("x"), CInt(1))), Not(CTrue()))))
-  }
-
-  "An incorrect expression" should "fail to parse" in {
-
+  "A complex expression with condition and nested operations" should "be parsed correctly" in {
+    val code = "if add 1 mul 2 3 then mul 4 5 else app g add 6 7"
+    val result = FLangParser.parseCode(code)
+    result.get should be(
+      IfThenElse(
+        Add(CInt(1), Mul(CInt(2), CInt(3))),
+        Mul(CInt(4), CInt(5)),
+        App("g", Add(CInt(6), CInt(7)))
+      )
+    )
   }
 }
